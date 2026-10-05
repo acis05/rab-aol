@@ -1,0 +1,3 @@
+import { NextResponse } from 'next/server'; import { db } from '@/lib/db';
+export async function GET(r:Request){const projectId=new URL(r.url).searchParams.get('projectId')||undefined;return NextResponse.json(await db.rabItem.findMany({where:{projectId},orderBy:{code:'asc'}}))}
+export async function POST(r:Request){const x=await r.json();const amount=Number(x.qty)*Number(x.unitPrice);return NextResponse.json(await db.rabItem.create({data:{projectId:x.projectId,code:x.code,description:x.description,unit:x.unit,qty:x.qty,unitPrice:x.unitPrice,budgetAmount:amount,accurateItemId:x.accurateItemId}}),{status:201})}

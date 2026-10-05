@@ -1,0 +1,3 @@
+import { NextResponse } from 'next/server'; import { db } from '@/lib/db';
+export async function GET(){return NextResponse.json(await db.materialIssue.findMany({include:{project:true,items:true},orderBy:{issueDate:'desc'}}))}
+export async function POST(r:Request){const x=await r.json();return NextResponse.json(await db.materialIssue.create({data:{number:x.number,projectId:x.projectId,issueDate:new Date(x.issueDate),warehouseName:x.warehouseName,notes:x.notes,status:x.status||'DRAFT',items:{create:(x.items||[]).map((i:any)=>({rabItemId:i.rabItemId,accurateItemId:i.accurateItemId,itemName:i.itemName,qty:i.qty,unit:i.unit,actualUnitCost:i.actualUnitCost||0,actualCost:Number(i.qty)*Number(i.actualUnitCost||0)}))}},include:{items:true}}),{status:201})}

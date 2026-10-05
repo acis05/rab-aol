@@ -1,0 +1,2 @@
+import { db } from '@/lib/db'; export const dynamic='force-dynamic';
+export default async function Projects(){const ps=await db.project.findMany({orderBy:{createdAt:'desc'}});return <main className="wrap"><h1>Projects</h1><p className="muted">MVP API tersedia di /api/projects, /api/rab, /api/material-issues dan /api/expenses.</p><table><thead><tr><th>Kode</th><th>Nama</th><th>Customer</th><th>Status</th></tr></thead><tbody>{ps.map(p=><tr key={p.id}><td>{p.code}</td><td>{p.name}</td><td>{p.customerName||'-'}</td><td>{p.status}</td></tr>)}</tbody></table></main>}

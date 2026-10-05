@@ -1,0 +1,8 @@
+import { db } from '@/lib/db'; import { rupiah } from '@/lib/money';
+export const dynamic='force-dynamic';
+export default async function Home(){
+ const projects=await db.project.findMany({include:{rabItems:true,materialIssues:{include:{items:true}},expenses:true},orderBy:{createdAt:'desc'}});
+ const budget=projects.flatMap(p=>p.rabItems).reduce((s,x)=>s+Number(x.budgetAmount),0);
+ const material=projects.flatMap(p=>p.materialIssues).flatMap(x=>x.items).reduce((s,x)=>s+Number(x.actualCost),0);
+ const expenses=projects.flatMap(p=>p.expenses).reduce((s,x)=>s+Number(x.amount),0); const actual=material+expenses;
+ return <main className="wrap"><h1>Project Cost Dashboard</h1><p className="muted">RAB → material usage → project expense → Accurate Online.</p><div className="grid"><div className="card"><div className="muted">Project</div><div className="big">{projects.length}</div></div><div className="card"><div className="muted">Total RAB</div><div className="big">{rupiah(budget)}</div></div><div className="card"><div className="muted">Actual Cost</div><div className="big">{rupiah(actual)}</div></div><div className="card"><div className="muted">Sisa Budget</div><div className="big">{rupiah(budget-actual)}</div></div></div><div className="section"><h2>Project</h2><table><thead><tr><th>Kode</th><th>Nama</th><th>RAB</th><th>Actual</th><th>Status</th></tr></thead><tbody>{projects.map(p=>{const b=p.rabItems.reduce((s,x)=>s+Number(x.budgetAmount),0);const a=p.materialIssues.flatMap(x=>x.items).reduce((s,x)=>s+Number(x.actualCost),0)+p.expenses.reduce((s,x)=>s+Number(x.amount),0);return <tr key={p.id}><td>{p.code}</td><td>{p.name}</td><td>{rupiah(b)}</td><td>{rupiah(a)}</td><td><span className="pill">{p.status}</span></td></tr>})}</tbody></table></div></main>}

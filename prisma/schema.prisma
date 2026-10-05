@@ -1,0 +1,109 @@
+generator client { provider = "prisma-client-js" }
+datasource db { provider = "postgresql"; url = env("DATABASE_URL") }
+
+enum ProjectStatus { PLANNING ACTIVE ON_HOLD DONE }
+enum DocStatus { DRAFT APPROVED POSTED CANCELLED }
+enum CostType { MATERIAL LABOR SUBCONTRACT EQUIPMENT TRANSPORT OTHER }
+
+model Project {
+  id String @id @default(cuid())
+  code String @unique
+  name String
+  customerName String?
+  contractValue Decimal @default(0) @db.Decimal(18,2)
+  status ProjectStatus @default(ACTIVE)
+  accurateProjectId String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  rabItems RabItem[]
+  materialIssues MaterialIssue[]
+  expenses ProjectExpense[]
+}
+
+model RabItem {
+  id String @id @default(cuid())
+  projectId String
+  project Project @relation(fields:[projectId], references:[id], onDelete:Cascade)
+  parentId String?
+  code String
+  description String
+  unit String
+  qty Decimal @default(0) @db.Decimal(18,4)
+  unitPrice Decimal @default(0) @db.Decimal(18,2)
+  budgetAmount Decimal @default(0) @db.Decimal(18,2)
+  accurateItemId String?
+  materialIssueItems MaterialIssueItem[]
+  expenses ProjectExpense[]
+  @@unique([projectId, code])
+}
+
+model MaterialIssue {
+  id String @id @default(cuid())
+  number String @unique
+  projectId String
+  project Project @relation(fields:[projectId], references:[id])
+  issueDate DateTime
+  warehouseName String?
+  notes String?
+  status DocStatus @default(DRAFT)
+  accurateRef String?
+  items MaterialIssueItem[]
+  createdAt DateTime @default(now())
+}
+
+model MaterialIssueItem {
+  id String @id @default(cuid())
+  materialIssueId String
+  materialIssue MaterialIssue @relation(fields:[materialIssueId], references:[id], onDelete:Cascade)
+  rabItemId String
+  rabItem RabItem @relation(fields:[rabItemId], references:[id])
+  accurateItemId String?
+  itemName String
+  qty Decimal @db.Decimal(18,4)
+  unit String
+  actualUnitCost Decimal @default(0) @db.Decimal(18,2)
+  actualCost Decimal @default(0) @db.Decimal(18,2)
+}
+
+model ProjectExpense {
+  id String @id @default(cuid())
+  number String @unique
+  projectId String
+  project Project @relation(fields:[projectId], references:[id])
+  rabItemId String?
+  rabItem RabItem? @relation(fields:[rabItemId], references:[id])
+  expenseDate DateTime
+  type CostType
+  vendorName String?
+  description String
+  amount Decimal @db.Decimal(18,2)
+  status DocStatus @default(DRAFT)
+  accurateRef String?
+  createdAt DateTime @default(now())
+}
+
+model AccurateConnection {
+  id String @id @default(cuid())
+  companyKey String @unique
+  databaseId String?
+  databaseAlias String?
+  accessToken String?
+  refreshToken String?
+  tokenExpiresAt DateTime?
+  sessionId String?
+  sessionHost String?
+  scopes String?
+  updatedAt DateTime @updatedAt
+}
+
+model AccurateSync {
+  id String @id @default(cuid())
+  entityType String
+  localId String
+  accurateId String?
+  accurateNumber String?
+  status String @default("PENDING")
+  errorMessage String?
+  lastSyncedAt DateTime?
+  @@unique([entityType, localId])
+}
