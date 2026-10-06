@@ -7,10 +7,30 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum ProjectStatus { PLANNING ACTIVE ON_HOLD DONE }
-enum DocStatus { DRAFT APPROVED POSTED CANCELLED }
-enum CostType { MATERIAL LABOR SUBCONTRACT EQUIPMENT TRANSPORT OTHER }
-enum RabRowType { GROUP WORK }
+enum ProjectStatus {
+  PLANNING
+  ACTIVE
+  ON_HOLD
+  DONE
+}
+enum DocStatus {
+  DRAFT
+  APPROVED
+  POSTED
+  CANCELLED
+}
+enum CostType {
+  MATERIAL
+  LABOR
+  SUBCONTRACT
+  EQUIPMENT
+  TRANSPORT
+  OTHER
+}
+enum RabRowType {
+  GROUP
+  WORK
+}
 
 // Master tables are mirrors of Accurate Online. They are read-only in the UI.
 model Project {
