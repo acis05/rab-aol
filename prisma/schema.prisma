@@ -39,10 +39,10 @@ enum PurchaseType {
   INVOICE
 }
 
-// Master tables are mirrors of Accurate Online. They are read-only in the UI.
+// Hybrid masters: usable locally first, then optionally mapped/synced to Accurate Online.
 model Project {
   id String @id @default(cuid())
-  accurateId String @unique
+  accurateId String? @unique
   code String @unique
   name String
   description String?

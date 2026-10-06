@@ -6,3 +6,6 @@ Same Railway Docker/PostgreSQL flow as v6. Run Prisma migration after replacing 
 
 ## v9 workflow baseline
 RAB CRUD, Purchase Request, Purchase Order, Goods Receipt, Vendor Invoice, Material Request, Material Issue, Material Return, Project Expense, cost-control reports, and Accurate-owned read-only masters are wired to PostgreSQL. Accurate OAuth/sync remains the external integration boundary and requires real Accurate Developer credentials.
+
+## v10 — Hybrid Project
+Project sekarang dapat dibuat/edit secara lokal tanpa Accurate Online. `accurateId` bersifat opsional. Setelah integrasi Accurate aktif, project lokal dapat dimapping/sync tanpa menghalangi workflow RAB.
