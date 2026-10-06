@@ -3,3 +3,6 @@ RAB hierarchy inspired by the supplied Accurate Desktop reference. Project, Cust
 
 ## Deploy
 Same Railway Docker/PostgreSQL flow as v6. Run Prisma migration after replacing source. Accurate sync UI is scaffolded; real OAuth/API credentials and endpoint mapping are still required before Sync buttons can pull production data.
+
+## v9 workflow baseline
+RAB CRUD, Purchase Request, Purchase Order, Goods Receipt, Vendor Invoice, Material Request, Material Issue, Material Return, Project Expense, cost-control reports, and Accurate-owned read-only masters are wired to PostgreSQL. Accurate OAuth/sync remains the external integration boundary and requires real Accurate Developer credentials.

@@ -1,1 +1,1 @@
-import {PageTitle,PlaceholderTable} from '@/components/Page';export default function Page(){return <main className="content"><PageTitle title="Material Request" subtitle="Permintaan material dari pelaksana berdasarkan kebutuhan item RAB." action={<button className="btn">+ Tambah</button>}/><PlaceholderTable headers={["No. MR", "Tanggal", "Project", "RAB / WBS", "Pemohon", "Item", "Qty", "Status"]}/></main>}
+import MaterialMoveCrud from '@/components/MaterialMoveCrud';export default function Page(){return <MaterialMoveCrud type="REQUEST" title="Material Request"/>}

@@ -1,1 +1,1 @@
-import {PageTitle,PlaceholderTable} from '@/components/Page';export default function Page(){return <main className="content"><PageTitle title="Invoice Vendor" subtitle="Tagihan supplier/subkon yang direkonsiliasi dengan PO dan penerimaan barang." action={<button className="btn">+ Tambah</button>}/><PlaceholderTable headers={["No. Invoice", "Tanggal", "Project", "Vendor", "PO", "Nilai", "Accurate", "Status"]}/></main>}
+import TransactionCrud from '@/components/TransactionCrud'; export default function Page(){return <TransactionCrud kind="INVOICE" title="Invoice Vendor"/>}

@@ -32,6 +32,13 @@ enum RabRowType {
   WORK
 }
 
+enum PurchaseType {
+  PR
+  PO
+  RECEIPT
+  INVOICE
+}
+
 // Master tables are mirrors of Accurate Online. They are read-only in the UI.
 model Project {
   id String @id @default(cuid())
@@ -47,6 +54,8 @@ model Project {
   rabHeaders RabHeader[]
   materialIssues MaterialIssue[]
   expenses ProjectExpense[]
+  purchases PurchaseDoc[]
+  materialMoves MaterialMove[]
 }
 model Customer {
   id String @id @default(cuid())
@@ -63,6 +72,7 @@ model Vendor {
   name String
   lastSyncedAt DateTime?
   rabCostLines RabCostLine[]
+  purchases PurchaseDoc[]
 }
 model Item {
   id String @id @default(cuid())
@@ -73,6 +83,8 @@ model Item {
   lastPrice Decimal @default(0) @db.Decimal(18,2)
   lastSyncedAt DateTime?
   rabMaterials RabMaterial[]
+  purchaseLines PurchaseLine[]
+  materialMoveLines MaterialMoveLine[]
 }
 
 model RabHeader {
@@ -117,6 +129,8 @@ model RabItem {
   notes String?
   expenses ProjectExpense[]
   materialIssueItems MaterialIssueItem[]
+  purchaseLines PurchaseLine[]
+  materialMoveLines MaterialMoveLine[]
   @@unique([rabHeaderId,code])
 }
 model RabMaterial {
@@ -143,6 +157,36 @@ model RabCostLine {
   vendorId String?
   vendor Vendor? @relation(fields:[vendorId], references:[id])
   sortOrder Int @default(0)
+}
+
+model PurchaseDoc {
+  id String @id @default(cuid())
+  type PurchaseType
+  number String @unique
+  projectId String
+  project Project @relation(fields:[projectId], references:[id])
+  vendorId String?
+  vendor Vendor? @relation(fields:[vendorId], references:[id])
+  docDate DateTime @default(now())
+  status DocStatus @default(DRAFT)
+  sourceId String?
+  notes String?
+  accurateRef String?
+  createdAt DateTime @default(now())
+  lines PurchaseLine[]
+}
+model PurchaseLine {
+  id String @id @default(cuid())
+  purchaseDocId String
+  purchaseDoc PurchaseDoc @relation(fields:[purchaseDocId], references:[id], onDelete:Cascade)
+  rabItemId String?
+  rabItem RabItem? @relation(fields:[rabItemId], references:[id])
+  itemId String
+  item Item @relation(fields:[itemId], references:[id])
+  description String
+  qty Decimal @db.Decimal(18,4)
+  unit String?
+  unitPrice Decimal @default(0) @db.Decimal(18,2)
 }
 
 model MaterialIssue {
@@ -210,4 +254,35 @@ model AccurateSync {
   errorMessage String?
   lastSyncedAt DateTime?
   @@unique([entityType,localId])
+}
+
+enum MaterialMoveType {
+  REQUEST
+  RETURN
+}
+
+model MaterialMove {
+  id String @id @default(cuid())
+  type MaterialMoveType
+  number String @unique
+  projectId String
+  project Project @relation(fields:[projectId], references:[id])
+  moveDate DateTime @default(now())
+  warehouseName String?
+  notes String?
+  status DocStatus @default(DRAFT)
+  createdAt DateTime @default(now())
+  lines MaterialMoveLine[]
+}
+
+model MaterialMoveLine {
+  id String @id @default(cuid())
+  materialMoveId String
+  materialMove MaterialMove @relation(fields:[materialMoveId], references:[id], onDelete:Cascade)
+  rabItemId String?
+  rabItem RabItem? @relation(fields:[rabItemId], references:[id])
+  itemId String
+  item Item @relation(fields:[itemId], references:[id])
+  qty Decimal @db.Decimal(18,4)
+  unit String?
 }

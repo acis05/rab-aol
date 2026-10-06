@@ -1,1 +1,1 @@
-import {PageTitle,PlaceholderTable} from '@/components/Page';export default function Page(){return <main className="content"><PageTitle title="Purchase Request" subtitle="Permintaan pembelian material/jasa dari site sebelum menjadi komitmen biaya." action={<button className="btn">+ Tambah</button>}/><PlaceholderTable headers={["No. PR", "Tanggal", "Project", "Pemohon", "Nilai Estimasi", "Approval", "Status"]}/></main>}
+import TransactionCrud from '@/components/TransactionCrud'; export default function Page(){return <TransactionCrud kind="PR" title="Purchase Request"/>}

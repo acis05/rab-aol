@@ -5,7 +5,8 @@ import { useState } from 'react';
 const groups=[
  ['UTAMA',[['⌂','Dashboard','/'],['▣','RAB Proyek','/rab']]],
  ['MASTER ACCURATE',[['P','Project','/master/projects'],['C','Customer','/master/customers'],['V','Vendor','/master/vendors'],['I','Item','/master/items']]],
- ['TRANSAKSI',[['⇢','Pemakaian Material','/materials/issues'],['Rp','Biaya Proyek','/expenses']]],
+ ['PROCUREMENT',[['PR','Purchase Request','/procurement/pr'],['PO','Purchase Order','/procurement/po'],['GR','Penerimaan Barang','/procurement/receipts'],['IV','Invoice Vendor','/procurement/invoices']]],
+ ['MATERIAL & BIAYA',[['MR','Material Request','/materials/requests'],['⇢','Pemakaian Material','/materials/issues'],['↩','Material Return','/materials/returns'],['Rp','Biaya Proyek','/expenses']]],
  ['KONTROL',[['◫','Cost Control','/cost-control'],['▥','Budget vs Actual','/reports/budget-actual'],['◒','Material Usage','/reports/material-usage'],['◇','Profitability','/reports/profitability']]],
  ['INTEGRASI',[['A','Accurate Online','/integrations/accurate'],['⚙','Pengaturan','/settings']]],
 ];
