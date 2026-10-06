@@ -1,1 +1,26 @@
-{"name":"rab-cost-control","version":"0.1.0","private":true,"scripts":{"dev":"next dev","build":"prisma generate && next build","start":"prisma migrate deploy && next start","db:seed":"tsx prisma/seed.ts","db:migrate":"prisma migrate dev"},"dependencies":{"@prisma/client":"6.16.2","next":"15.5.4","react":"19.1.1","react-dom":"19.1.1","zod":"4.1.11"},"devDependencies":{"@types/node":"24.5.2","@types/react":"19.1.16","prisma":"6.16.2","tsx":"4.20.5","typescript":"5.9.2"}}
+{
+  "name": "rab-cost-control",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "prisma generate && next build",
+    "start": "prisma migrate deploy && next start",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:migrate": "prisma migrate dev"
+  },
+  "dependencies": {
+    "@prisma/client": "6.16.2",
+    "next": "15.5.9",
+    "react": "19.1.2",
+    "react-dom": "19.1.2",
+    "zod": "4.1.11"
+  },
+  "devDependencies": {
+    "@types/node": "24.5.2",
+    "@types/react": "19.1.16",
+    "prisma": "6.16.2",
+    "tsx": "4.20.5",
+    "typescript": "5.9.2"
+  }
+}
