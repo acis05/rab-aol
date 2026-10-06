@@ -1,0 +1,4 @@
+import {NextResponse} from 'next/server'; import {db} from '@/lib/db';
+export async function POST(r:Request){const x=await r.json();return NextResponse.json(await db.rabCostLine.create({data:{rabItemId:x.rabItemId,type:x.type||'OTHER',description:x.description||'Biaya proyek',qty:x.qty??1,unit:x.unit||null,unitPrice:x.unitPrice??0,vendorId:x.vendorId||null}}),{status:201})}
+export async function PATCH(r:Request){const x=await r.json();const data:any={};for(const k of ['type','description','qty','unit','unitPrice','vendorId','sortOrder'])if(x[k]!==undefined)data[k]=x[k]||null;return NextResponse.json(await db.rabCostLine.update({where:{id:x.id},data}))}
+export async function DELETE(r:Request){const id=new URL(r.url).searchParams.get('id');if(!id)return NextResponse.json({error:'id wajib'},{status:400});await db.rabCostLine.delete({where:{id}});return NextResponse.json({ok:true})}

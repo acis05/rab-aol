@@ -1,4 +1,4 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-export async function GET(r:Request){const projectId=new URL(r.url).searchParams.get('projectId')||undefined;return NextResponse.json(await db.rabHeader.findMany({where:{projectId},include:{rows:{include:{materials:{include:{item:true}}},orderBy:{sortOrder:'asc'}}},orderBy:{version:'desc'}}))}
+export async function GET(r:Request){const projectId=new URL(r.url).searchParams.get('projectId')||undefined;return NextResponse.json(await db.rabHeader.findMany({where:{projectId},include:{rows:{include:{materials:{include:{item:true}},costLines:{include:{vendor:true}}},orderBy:{sortOrder:'asc'}}},orderBy:{version:'desc'}}))}
 export async function POST(r:Request){const x=await r.json();if(!x.projectId)return NextResponse.json({error:'projectId wajib'},{status:400});const latest=await db.rabHeader.findFirst({where:{projectId:x.projectId},orderBy:{version:'desc'}});const rab=await db.rabHeader.create({data:{projectId:x.projectId,version:(latest?.version||0)+1,notes:x.notes||null}});return NextResponse.json(rab,{status:201})}

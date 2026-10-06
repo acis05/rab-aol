@@ -1,0 +1,4 @@
+import {NextResponse} from 'next/server'; import {db} from '@/lib/db';
+export async function POST(r:Request){const x=await r.json(); const item=await db.item.findUnique({where:{id:x.itemId}}); if(!item)return NextResponse.json({error:'Item tidak ditemukan'},{status:404}); return NextResponse.json(await db.rabMaterial.create({data:{rabItemId:x.rabItemId,itemId:x.itemId,qty:x.qty??1,unit:x.unit||item.unit,unitPrice:x.unitPrice??item.lastPrice,wpa:x.wpa??0},include:{item:true}}),{status:201})}
+export async function PATCH(r:Request){const x=await r.json();return NextResponse.json(await db.rabMaterial.update({where:{id:x.id},data:{qty:x.qty,unit:x.unit,unitPrice:x.unitPrice,wpa:x.wpa}}))}
+export async function DELETE(r:Request){const id=new URL(r.url).searchParams.get('id');if(!id)return NextResponse.json({error:'id wajib'},{status:400});await db.rabMaterial.delete({where:{id}});return NextResponse.json({ok:true})}

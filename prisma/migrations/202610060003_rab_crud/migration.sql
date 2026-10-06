@@ -1,0 +1,19 @@
+ALTER TABLE "RabItem" ADD COLUMN IF NOT EXISTS "notes" TEXT;
+CREATE TABLE IF NOT EXISTS "RabCostLine" (
+  "id" TEXT NOT NULL,
+  "rabItemId" TEXT NOT NULL,
+  "type" "CostType" NOT NULL DEFAULT 'OTHER',
+  "description" TEXT NOT NULL,
+  "qty" DECIMAL(18,4) NOT NULL DEFAULT 1,
+  "unit" TEXT,
+  "unitPrice" DECIMAL(18,2) NOT NULL DEFAULT 0,
+  "vendorId" TEXT,
+  "sortOrder" INTEGER NOT NULL DEFAULT 0,
+  CONSTRAINT "RabCostLine_pkey" PRIMARY KEY ("id")
+);
+DO $$ BEGIN
+ ALTER TABLE "RabCostLine" ADD CONSTRAINT "RabCostLine_rabItemId_fkey" FOREIGN KEY ("rabItemId") REFERENCES "RabItem"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN
+ ALTER TABLE "RabCostLine" ADD CONSTRAINT "RabCostLine_vendorId_fkey" FOREIGN KEY ("vendorId") REFERENCES "Vendor"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;

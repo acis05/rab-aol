@@ -1,0 +1,3 @@
+import {NextResponse} from 'next/server'; import {db} from '@/lib/db';
+export async function PATCH(r:Request){const x=await r.json(); if(!x.id)return NextResponse.json({error:'id wajib'},{status:400}); const data:any={}; for(const k of ['notes','isDetailed','contractorPercent','rounding','otherService','addition','taxPercent']) if(x[k]!==undefined)data[k]=x[k]; return NextResponse.json(await db.rabHeader.update({where:{id:x.id},data}))}
+export async function DELETE(r:Request){const id=new URL(r.url).searchParams.get('id'); if(!id)return NextResponse.json({error:'id wajib'},{status:400}); await db.rabHeader.delete({where:{id}}); return NextResponse.json({ok:true})}
