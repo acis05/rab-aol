@@ -34,3 +34,7 @@ Accurate OAuth Authorization Code memerlukan Client ID/Secret dan callback URL t
 
 ## Production notes
 Sebelum dipakai customer: tambah auth + tenant isolation, RBAC/approval, audit log, encrypted OAuth token storage, idempotency/outbox sync, retry queue, attachment storage, tests, dan backup policy.
+
+
+## Railway v5 note
+Docker packaging no longer copies an optional `public/` directory. The runtime image also carries the full installed dependency tree so `prisma migrate deploy` is available at startup.
