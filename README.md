@@ -38,3 +38,8 @@ Sebelum dipakai customer: tambah auth + tenant isolation, RBAC/approval, audit l
 
 ## Railway v5 note
 Docker packaging no longer copies an optional `public/` directory. The runtime image also carries the full installed dependency tree so `prisma migrate deploy` is available at startup.
+
+## v6 Product UI
+Menu lengkap MVP: Dashboard, Project, RAB/BOQ, Revisi RAB, Procurement (PR/PO/GR/Invoice), Material (Stock/MR/Issue/Return), Project Expense, Cost Control, Reports, Accurate Online, dan Settings.
+
+Fitur yang sudah tersambung database: Project, RAB/BOQ, Material Issue (listing/API), Project Expense, dashboard/cost reports. Menu procurement, stock, material request/return, revision, user/approval adalah product-ready screens yang disiapkan untuk implementasi transaksi berikutnya.
