@@ -7,130 +7,170 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum ProjectStatus {
-  PLANNING
-  ACTIVE
-  ON_HOLD
-  DONE
-}
+enum ProjectStatus { PLANNING ACTIVE ON_HOLD DONE }
+enum DocStatus { DRAFT APPROVED POSTED CANCELLED }
+enum CostType { MATERIAL LABOR SUBCONTRACT EQUIPMENT TRANSPORT OTHER }
+enum RabRowType { GROUP WORK }
 
-enum DocStatus {
-  DRAFT
-  APPROVED
-  POSTED
-  CANCELLED
-}
-
-enum CostType {
-  MATERIAL
-  LABOR
-  SUBCONTRACT
-  EQUIPMENT
-  TRANSPORT
-  OTHER
-}
-
+// Master tables are mirrors of Accurate Online. They are read-only in the UI.
 model Project {
-  id                String          @id @default(cuid())
-  code              String          @unique
-  name              String
-  customerName      String?
-  contractValue     Decimal         @default(0) @db.Decimal(18, 2)
-  status            ProjectStatus   @default(ACTIVE)
-  accurateProjectId String?
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
-  rabItems          RabItem[]
-  materialIssues    MaterialIssue[]
-  expenses          ProjectExpense[]
+  id String @id @default(cuid())
+  accurateId String @unique
+  code String @unique
+  name String
+  description String?
+  customerId String?
+  customer Customer? @relation(fields:[customerId], references:[id])
+  contractValue Decimal @default(0) @db.Decimal(18,2)
+  status ProjectStatus @default(ACTIVE)
+  lastSyncedAt DateTime?
+  rabHeaders RabHeader[]
+  materialIssues MaterialIssue[]
+  expenses ProjectExpense[]
+}
+model Customer {
+  id String @id @default(cuid())
+  accurateId String @unique
+  code String?
+  name String
+  lastSyncedAt DateTime?
+  projects Project[]
+}
+model Vendor {
+  id String @id @default(cuid())
+  accurateId String @unique
+  code String?
+  name String
+  lastSyncedAt DateTime?
+}
+model Item {
+  id String @id @default(cuid())
+  accurateId String @unique
+  code String?
+  name String
+  unit String?
+  lastPrice Decimal @default(0) @db.Decimal(18,2)
+  lastSyncedAt DateTime?
+  rabMaterials RabMaterial[]
 }
 
+model RabHeader {
+  id String @id @default(cuid())
+  projectId String
+  project Project @relation(fields:[projectId], references:[id], onDelete:Cascade)
+  version Int @default(1)
+  notes String?
+  isDetailed Boolean @default(true)
+  contractorPercent Decimal @default(0) @db.Decimal(9,4)
+  rounding Decimal @default(0) @db.Decimal(18,2)
+  otherService Decimal @default(0) @db.Decimal(18,2)
+  addition Decimal @default(0) @db.Decimal(18,2)
+  taxPercent Decimal @default(11) @db.Decimal(9,4)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  rows RabItem[]
+  @@unique([projectId,version])
+}
 model RabItem {
-  id                 String              @id @default(cuid())
-  projectId          String
-  project            Project             @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  parentId           String?
-  code               String
-  description        String
-  unit               String
-  qty                Decimal             @default(0) @db.Decimal(18, 4)
-  unitPrice          Decimal             @default(0) @db.Decimal(18, 2)
-  budgetAmount       Decimal             @default(0) @db.Decimal(18, 2)
-  accurateItemId     String?
+  id String @id @default(cuid())
+  rabHeaderId String
+  rabHeader RabHeader @relation(fields:[rabHeaderId], references:[id], onDelete:Cascade)
+  parentId String?
+  parent RabItem? @relation("RabTree", fields:[parentId], references:[id])
+  children RabItem[] @relation("RabTree")
+  sortOrder Int @default(0)
+  code String
+  rowType RabRowType @default(WORK)
+  description String
+  volume Decimal @default(1) @db.Decimal(18,4)
+  unit String?
+  volumeFactor Decimal @default(1) @db.Decimal(18,4)
+  materialFactor Decimal @default(1) @db.Decimal(18,4)
+  laborFactor Decimal @default(1) @db.Decimal(18,4)
+  unitPrice Decimal @default(0) @db.Decimal(18,2)
+  startDate DateTime?
+  endDate DateTime?
+  subcontract Boolean @default(false)
+  materials RabMaterial[]
+  expenses ProjectExpense[]
   materialIssueItems MaterialIssueItem[]
-  expenses           ProjectExpense[]
-
-  @@unique([projectId, code])
+  @@unique([rabHeaderId,code])
+}
+model RabMaterial {
+  id String @id @default(cuid())
+  rabItemId String
+  rabItem RabItem @relation(fields:[rabItemId], references:[id], onDelete:Cascade)
+  itemId String
+  item Item @relation(fields:[itemId], references:[id])
+  qty Decimal @db.Decimal(18,4)
+  unit String?
+  unitPrice Decimal @db.Decimal(18,2)
+  wpa Decimal @default(0) @db.Decimal(18,4)
 }
 
 model MaterialIssue {
-  id            String              @id @default(cuid())
-  number        String              @unique
-  projectId     String
-  project       Project             @relation(fields: [projectId], references: [id])
-  issueDate     DateTime
+  id String @id @default(cuid())
+  number String @unique
+  projectId String
+  project Project @relation(fields:[projectId], references:[id])
+  issueDate DateTime
   warehouseName String?
-  notes         String?
-  status        DocStatus           @default(DRAFT)
-  accurateRef   String?
-  items         MaterialIssueItem[]
-  createdAt     DateTime            @default(now())
-}
-
-model MaterialIssueItem {
-  id              String        @id @default(cuid())
-  materialIssueId String
-  materialIssue   MaterialIssue @relation(fields: [materialIssueId], references: [id], onDelete: Cascade)
-  rabItemId       String
-  rabItem         RabItem       @relation(fields: [rabItemId], references: [id])
-  accurateItemId  String?
-  itemName        String
-  qty             Decimal       @db.Decimal(18, 4)
-  unit            String
-  actualUnitCost  Decimal       @default(0) @db.Decimal(18, 2)
-  actualCost      Decimal       @default(0) @db.Decimal(18, 2)
-}
-
-model ProjectExpense {
-  id          String     @id @default(cuid())
-  number      String     @unique
-  projectId   String
-  project     Project    @relation(fields: [projectId], references: [id])
-  rabItemId   String?
-  rabItem     RabItem?   @relation(fields: [rabItemId], references: [id])
-  expenseDate DateTime
-  type        CostType
-  vendorName  String?
-  description String
-  amount      Decimal    @db.Decimal(18, 2)
-  status      DocStatus  @default(DRAFT)
+  notes String?
+  status DocStatus @default(DRAFT)
   accurateRef String?
-  createdAt   DateTime   @default(now())
+  items MaterialIssueItem[]
+  createdAt DateTime @default(now())
 }
-
+model MaterialIssueItem {
+  id String @id @default(cuid())
+  materialIssueId String
+  materialIssue MaterialIssue @relation(fields:[materialIssueId], references:[id], onDelete:Cascade)
+  rabItemId String
+  rabItem RabItem @relation(fields:[rabItemId], references:[id])
+  accurateItemId String?
+  itemName String
+  qty Decimal @db.Decimal(18,4)
+  unit String
+  actualUnitCost Decimal @default(0) @db.Decimal(18,2)
+  actualCost Decimal @default(0) @db.Decimal(18,2)
+}
+model ProjectExpense {
+  id String @id @default(cuid())
+  number String @unique
+  projectId String
+  project Project @relation(fields:[projectId], references:[id])
+  rabItemId String?
+  rabItem RabItem? @relation(fields:[rabItemId], references:[id])
+  expenseDate DateTime
+  type CostType
+  vendorName String?
+  description String
+  amount Decimal @db.Decimal(18,2)
+  status DocStatus @default(DRAFT)
+  accurateRef String?
+  createdAt DateTime @default(now())
+}
 model AccurateConnection {
-  id             String   @id @default(cuid())
-  companyKey     String   @unique
-  databaseId     String?
-  databaseAlias  String?
-  accessToken    String?
-  refreshToken   String?
+  id String @id @default(cuid())
+  companyKey String @unique
+  databaseId String?
+  databaseAlias String?
+  accessToken String?
+  refreshToken String?
   tokenExpiresAt DateTime?
-  sessionId      String?
-  sessionHost    String?
-  scopes         String?
-  updatedAt      DateTime @updatedAt
+  sessionId String?
+  sessionHost String?
+  scopes String?
+  updatedAt DateTime @updatedAt
 }
-
 model AccurateSync {
-  id             String    @id @default(cuid())
-  entityType     String
-  localId        String
-  accurateId     String?
+  id String @id @default(cuid())
+  entityType String
+  localId String
+  accurateId String?
   accurateNumber String?
-  status         String    @default("PENDING")
-  errorMessage   String?
-  lastSyncedAt   DateTime?
-
-  @@unique([entityType, localId])
+  status String @default("PENDING")
+  errorMessage String?
+  lastSyncedAt DateTime?
+  @@unique([entityType,localId])
 }
