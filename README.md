@@ -59,3 +59,7 @@ npm run build
 ```
 
 Railway menjalankan migrasi melalui Docker start command sebelum server aktif.
+
+
+## OAuth callback compatibility
+Both `/api/integrations/accurate/callback` and `/api/accurate/callback` are accepted. Recommended: `/api/integrations/accurate/callback`.
