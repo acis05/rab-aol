@@ -1,4 +1,21 @@
 import {NextResponse} from 'next/server'; import {db} from '@/lib/db';
 export async function POST(r:Request){const x=await r.json(); const max=await db.rabItem.aggregate({where:{rabHeaderId:x.rabHeaderId},_max:{sortOrder:true}}); return NextResponse.json(await db.rabItem.create({data:{rabHeaderId:x.rabHeaderId,parentId:x.parentId||null,sortOrder:(max._max.sortOrder??-1)+1,code:x.code||String((max._max.sortOrder??-1)+2),rowType:x.rowType||'WORK',description:x.description||'Pekerjaan baru',volume:x.volume??1,unit:x.unit||null,volumeFactor:x.volumeFactor??1,materialFactor:x.materialFactor??1,laborFactor:x.laborFactor??1,unitPrice:x.unitPrice??0,startDate:x.startDate?new Date(x.startDate):null,endDate:x.endDate?new Date(x.endDate):null,subcontract:!!x.subcontract,notes:x.notes||null}}),{status:201})}
 export async function PATCH(r:Request){const x=await r.json(); const data:any={}; for(const k of ['parentId','sortOrder','code','rowType','description','volume','unit','volumeFactor','materialFactor','laborFactor','unitPrice','subcontract','notes'])if(x[k]!==undefined)data[k]=x[k]; if(x.startDate!==undefined)data.startDate=x.startDate?new Date(x.startDate):null;if(x.endDate!==undefined)data.endDate=x.endDate?new Date(x.endDate):null; return NextResponse.json(await db.rabItem.update({where:{id:x.id},data}))}
-export async function DELETE(r:Request){const id=new URL(r.url).searchParams.get('id'); if(!id)return NextResponse.json({error:'id wajib'},{status:400}); await db.rabItem.delete({where:{id}});return NextResponse.json({ok:true})}
+export async function DELETE(r:Request){
+ const id=new URL(r.url).searchParams.get('id');
+ if(!id)return NextResponse.json({error:'id wajib'},{status:400});
+ const row=await db.rabItem.findUnique({where:{id},include:{children:{select:{id:true}}}});
+ if(!row)return NextResponse.json({error:'Baris RAB tidak ditemukan'},{status:404});
+ try{
+  await db.$transaction(async tx=>{
+   if(row.children.length){
+    const childIds=row.children.map(x=>x.id);
+    await tx.rabMaterial.deleteMany({where:{rabItemId:{in:childIds}}});
+    await tx.rabCostLine.deleteMany({where:{rabItemId:{in:childIds}}});
+    await tx.rabItem.deleteMany({where:{id:{in:childIds}}});
+   }
+   await tx.rabItem.delete({where:{id}});
+  });
+  return NextResponse.json({ok:true});
+ }catch(e){return NextResponse.json({error:'Baris tidak dapat dihapus karena sudah dipakai transaksi lain. Hapus/batalkan transaksi terkait terlebih dahulu.'},{status:409})}
+}

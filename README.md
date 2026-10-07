@@ -63,3 +63,9 @@ Railway menjalankan migrasi melalui Docker start command sebelum server aktif.
 
 ## OAuth callback compatibility
 Both `/api/integrations/accurate/callback` and `/api/accurate/callback` are accepted. Recommended: `/api/integrations/accurate/callback`.
+
+## v10.3 RAB editor fix
+- Selection pekerjaan dipertahankan setelah autosave/reload detail; tidak kembali otomatis ke Group.
+- Tambah/hapus/edit Bahan Baku dan Biaya Proyek mempertahankan pekerjaan aktif.
+- Tombol Hapus tersedia per baris Group/Pekerjaan.
+- Hapus Group juga menghapus pekerjaan anak dan detail RAB-nya, kecuali sudah direferensikan transaksi lain.
