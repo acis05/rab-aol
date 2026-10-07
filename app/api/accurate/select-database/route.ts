@@ -1,0 +1,2 @@
+import {NextResponse} from 'next/server';import {openDatabase} from '@/lib/accurate';
+export async function POST(r:Request){try{const x=await r.json();if(!x.id)return NextResponse.json({error:'Database ID wajib'},{status:400});await openDatabase(String(x.id),x.alias?String(x.alias):undefined);return NextResponse.json({ok:true})}catch(e){return NextResponse.json({error:e instanceof Error?e.message:String(e)},{status:400})}}
